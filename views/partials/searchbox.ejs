@@ -1,0 +1,75 @@
+<style>
+  #searchForm {
+    background-color: #f8f9fa; /* Background color */
+    border-radius: 20px; /* Rounded corners */
+    padding: 8px 12px; /* Padding */
+    border: #0f0f0f; 
+  }
+
+  #inputTitle {
+    font-size: 16px; /* Increase font size */
+  }
+
+  #searchResults li {
+    cursor: pointer; /* Set cursor to pointer */
+  }
+</style>
+
+<div class="container mt-4">
+  <!-- Search Form -->
+  <form class="d-flex" id="searchForm">
+    <input id="inputTitle" class="form-control form-control-sm me-2 rounded-pill" type="search" placeholder="Search" aria-label="Search">
+  </form>
+  <!-- Search Results -->
+  <ul id="searchResults" class="list-group mt-2" style="display: none;"></ul>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.min.js"></script>
+<script>
+  const inputTitle = document.querySelector("#inputTitle");
+  const searchResults = document.querySelector("#searchResults");
+
+  inputTitle.addEventListener("input", function() {
+    const searchQuery = inputTitle.value.trim();
+    if (searchQuery === "") {
+      clearSearchResults(); // Clear search results if search query is empty
+      return;
+    }
+    axios.get(`/blog/search?q=${encodeURIComponent(searchQuery)}`)
+      .then(function(response) {
+        console.log(response);
+        displaySearchResults(response.data);
+      })
+      .catch(function(error) {
+        console.error('Error fetching search results:', error);
+        clearSearchResults(); // Clear search results on error
+      });
+  });
+
+  function displaySearchResults(results) {
+    searchResults.innerHTML = ""; // Clear previous search results
+    if (results.length === 0) {
+      searchResults.style.display = "none"; // Hide search results if there are none
+      return;
+    }
+    searchResults.style.display = "block"; // Show search results
+
+    results.forEach(result => {
+      const li = document.createElement("li");
+      li.classList.add("list-group-item");
+      li.textContent = result.title;
+      li.addEventListener("click", function() {
+        window.location.href = `/blog/${result._id}`; // Redirect to blog page when clicked
+      });
+      searchResults.appendChild(li);
+    });
+  }
+
+  function clearSearchResults() {
+    searchResults.innerHTML = ""; // Clear search results
+    searchResults.style.display = "none"; // Hide search results
+  }
+</script>
+
+  
+  
